@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.speech.RecognizerIntent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -18,7 +19,9 @@ import java.util.Locale;
 public class Conversation extends AppCompatActivity {
 
     private TextView comment;
-    private Button button;
+    private Button speak_button;
+    private Button size_up;
+    private Button size_down;
     private final int REQ_CODE_SPEECH_INPUT = 100;
 
     @Override
@@ -27,9 +30,11 @@ public class Conversation extends AppCompatActivity {
         setContentView(R.layout.activity_conversation);
 
         comment = (TextView) findViewById(R.id.comment);
-        button = (Button) findViewById(R.id.button2);
+        speak_button = (Button) findViewById(R.id.speak_button);
+        size_down = (Button) findViewById(R.id.size_down);
+        size_up = (Button) findViewById(R.id.size_up);
 
-        button.setOnClickListener(new View.OnClickListener() {
+        speak_button.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -37,6 +42,29 @@ public class Conversation extends AppCompatActivity {
             }
         });
 
+        size_down.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                changeFontSize(-3);
+            }
+        });
+
+        size_up.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                changeFontSize(3);
+            }
+        });
+    }
+
+    private void changeFontSize(float value) {
+        float base_size = comment.getTextSize();
+        float density = getResources().getDisplayMetrics().density;
+        float size = (base_size + value) / density;
+
+        comment.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
     }
 
     private void promptSpeechInput() {
