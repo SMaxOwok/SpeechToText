@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Speech To Text</string>
+    <string name="speech_prompt">Begin speaking</string>
+    <string name="size_down">Font -</string>
+    <string name="size_up">Font +</string>
+    <string name="speak_button">Speak</string>
+    <string name="speech_not_supported">Your device doesn\'t support speech to text</string>
 </resources>

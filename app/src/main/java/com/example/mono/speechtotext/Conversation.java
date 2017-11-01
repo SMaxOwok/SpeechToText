@@ -1,24 +1,107 @@
 package com.example.mono.speechtotext;
 
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.speech.RecognizerIntent;
-import android.speech.tts.TextToSpeech;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
-public class Conversation extends AppCompatActivity implements OnClickListener {
+import java.util.ArrayList;
+import java.util.Locale;
+
+
+public class Conversation extends AppCompatActivity {
+
+    private TextView comment;
+    private Button speak_button;
+    private Button size_up;
+    private Button size_down;
+    private final int REQ_CODE_SPEECH_INPUT = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
+
+        comment = (TextView) findViewById(R.id.comment);
+        speak_button = (Button) findViewById(R.id.speak_button);
+        size_down = (Button) findViewById(R.id.size_down);
+        size_up = (Button) findViewById(R.id.size_up);
+
+        speak_button.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                promptSpeechInput();
+            }
+        });
+
+        size_down.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                changeFontSize(-3);
+            }
+        });
+
+        size_up.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                changeFontSize(3);
+            }
+        });
     }
 
-    @Override
-    public void onView(View v) {
+    private void changeFontSize(float value) {
+        float base_size = comment.getTextSize();
+        float density = getResources().getDisplayMetrics().density;
+        float size = (base_size + value) / density;
 
+        comment.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
+    }
+
+    private void promptSpeechInput() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+                getString(R.string.speech_prompt));
+        try {
+            startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+        } catch (ActivityNotFoundException a) {
+            Toast.makeText(getApplicationContext(),
+                    getString(R.string.speech_not_supported),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Receiving speech input
+     * */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case REQ_CODE_SPEECH_INPUT: {
+                if (resultCode == RESULT_OK && null != data) {
+
+                    ArrayList<String> result = data
+                            .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    comment.setText(result.get(0));
+                    comment.setVisibility(View.VISIBLE);
+                }
+                break;
+            }
+
+        }
     }
 }
